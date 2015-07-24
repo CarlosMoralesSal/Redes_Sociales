@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Facebook;
 using System.Data;
 using System.Numerics;
+using System.Xml;
 
 public partial class Paneles : System.Web.UI.Page
 {
@@ -96,7 +97,7 @@ public partial class Paneles : System.Web.UI.Page
             WebResponse response = webRequest.GetResponse();
             postStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(postStream);
-            string responseFromServer = reader.ReadToEnd();
+            String responseFromServer = reader.ReadToEnd();
 
             Controlador.GooglePlusAccessToken serStatus = JsonConvert.DeserializeObject<Controlador.GooglePlusAccessToken>(responseFromServer);
 
@@ -154,11 +155,20 @@ public partial class Paneles : System.Web.UI.Page
                                     ipnum = System.BitConverter.ToUInt32(addrBytes, 0);
                                 }
                             }
-                            DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
-                            foreach (DataRow dRow in dtLocalizacion.Rows)
-                            {
-                                geoposicion = dRow["longitude"].ToString() + "," + dRow["latitude"].ToString();
-                            }
+                            //DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
+                            //foreach (DataRow dRow in dtLocalizacion.Rows)
+                            //{
+                            //    geoposicion = dRow["longitude"].ToString() + "," + dRow["latitude"].ToString();
+                            //}
+                            String usrIP = Request.UserHostAddress;
+
+
+                            String apiUrl = "http://api.ipinfodb.com/v3/ip-city/?key=04e88385a9c161c8c3dbfbe8ae5ac070873e6e0a1a27014dd4aabfcfc1655aa4&ip=212.128.152.144&format=xml";
+
+                            XmlDocument respon = GetXmlResponse(apiUrl);
+                            // Display each entity's info.
+                            geoposicion = ProcessEntityElements(respon);
+
                             Int64 idPersona=registro.Insertar(name, mail,geoposicion);
                             posOculto.Value = idPersona.ToString();
                             HttpCookie cookie = new HttpCookie("persona");
@@ -197,19 +207,20 @@ public partial class Paneles : System.Web.UI.Page
         String name = String.Empty;
         String user_location = String.Empty;
         System.Net.IPAddress address;
+        String geoposicion = "";
         
         String strIp;
         
 
         if (Request["code"] == null)
         {
-            Response.Redirect(string.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", app_id, Request.Url.AbsoluteUri, scope));
+            Response.Redirect(String.Format("https://graph.facebook.com/oauth/authorize?client_id={0}&redirect_uri={1}&scope={2}", app_id, Request.Url.AbsoluteUri, scope));
         }
         else
         {
 
-            Dictionary<string, string> tokens = new Dictionary<string, string>();
-            String url = string.Format("https://graph.facebook.com/oauth/access_token?client_id={0}&redirect_uri={1}&scope={2}&code={3}&client_secret={4}", app_id, Request.Url.AbsoluteUri, scope, Request["code"].ToString(), app_secret);
+            Dictionary<String, String> tokens = new Dictionary<String, string>();
+            String url = String.Format("https://graph.facebook.com/oauth/access_token?client_id={0}&redirect_uri={1}&scope={2}&code={3}&client_secret={4}", app_id, Request.Url.AbsoluteUri, scope, Request["code"].ToString(), app_secret);
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
 
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -218,7 +229,7 @@ public partial class Paneles : System.Web.UI.Page
                 StreamReader reader = new StreamReader(response.GetResponseStream());
                 String vals = reader.ReadToEnd();
 
-                foreach (string token in vals.Split('&'))
+                foreach (String token in vals.Split('&'))
                 {
                     tokens.Add(token.Substring(0, token.IndexOf("=")), token.Substring(token.IndexOf("=") + 1, token.Length - token.IndexOf("=") - 1));
                 }
@@ -229,25 +240,30 @@ public partial class Paneles : System.Web.UI.Page
             String usrIP=Request.UserHostAddress;
 
 
-            string apiUrl = "http://api.ipinfodb.com/v3/ip-city/?key=04e88385a9c161c8c3dbfbe8ae5ac070873e6e0a1a27014dd4aabfcfc1655aa4&ip=212.128.152.144&format=xml";
+            String apiUrl = "http://api.ipinfodb.com/v3/ip-city/?key=04e88385a9c161c8c3dbfbe8ae5ac070873e6e0a1a27014dd4aabfcfc1655aa4&ip=212.128.152.144&format=xml";
 
-            Uri dir = new Uri(apiUrl);
+            //Uri dir = new Uri(apiUrl);
 
-            // Create the web request 
-            HttpWebRequest req = WebRequest.Create(dir) as HttpWebRequest;
+            //// Create the web request 
+            //HttpWebRequest req = WebRequest.Create(dir) as HttpWebRequest;
 
-            // Set type to POST 
-            request.Method = "GET";
-            request.ContentType = "text/xml";
+            //// Set type to POST 
+            //request.Method = "GET";
+            //request.ContentType = "text/xml";
 
-            using (HttpWebResponse response = req.GetResponse() as HttpWebResponse)
-            {
-                // Get the response stream 
-                StreamReader reader = new StreamReader(response.GetResponseStream());
+            //using (HttpWebResponse response = req.GetResponse() as HttpWebResponse)
+            //{
+            //    // Get the response stream 
+            //    StreamReader reader = new StreamReader(response.GetResponseStream());
 
-                // Console application output 
-                String strOutputXml = reader.ReadToEnd();
-            }
+            //    // Console application output 
+            //    String strOutputXml = reader.ReadToEnd();
+            //}
+
+            // Send the request and get back an XML response.
+            XmlDocument respon = GetXmlResponse(apiUrl);
+            // Display each entity's info.
+            geoposicion=ProcessEntityElements(respon);
 
 
             
@@ -287,32 +303,74 @@ public partial class Paneles : System.Web.UI.Page
             mail = Convert.ToString(result.email);
             name = Convert.ToString(result.name);
             user_location = Convert.ToString(result.user_location);
-            String geoposicion="";
-            DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
-            foreach (DataRow dRow in dtLocalizacion.Rows)
-            {
-                geoposicion = dRow["longitude"].ToString() +","+dRow["latitude"].ToString();
-            }
+           
+            //DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
+            //foreach (DataRow dRow in dtLocalizacion.Rows)
+            //{
+            //    geoposicion = dRow["longitude"].ToString() +","+dRow["latitude"].ToString();
+            //}
 
             Int64 idPersona=registro.Insertar(name,mail,geoposicion);
             
             
-            posOculto.Value = idPersona.ToString();
-            HttpCookie cookie = new HttpCookie("persona");
-            cookie.Value = idPersona.ToString();
-            DateTime dtNow = DateTime.Now;
-            TimeSpan tsMinutes = new TimeSpan(0,0,2,0);
+            //posOculto.Value = idPersona.ToString();
+            //HttpCookie cookie = new HttpCookie("persona");
+            //cookie.Value = idPersona.ToString();
+            //DateTime dtNow = DateTime.Now;
+            //TimeSpan tsMinutes = new TimeSpan(0,0,2,0);
             
             entrar.Visible = false;
-            cookie.Expires = dtNow + tsMinutes;
-            Response.Cookies.Add(cookie);
+            //cookie.Expires = dtNow + tsMinutes;
+            //Response.Cookies.Add(cookie);
             salir.Visible = true;
             Session.Remove("Facebook");
            
         }
     }
 
+    public static XmlDocument GetXmlResponse(string requestUrl)
+    {
+        try
+        {
+            HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
+            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
 
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(response.GetResponseStream());
+            return (xmlDoc);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+
+            Console.Read();
+            return null;
+        }
+    }
+
+    private String ProcessEntityElements(XmlDocument response)
+    {
+        String geoposicion = "";
+        XmlNodeList entryElements = response.GetElementsByTagName("Response");
+        for (int i = 0; i <= entryElements.Count - 1; i++)
+        {
+            XmlElement element = (XmlElement)entryElements[i];
+            XmlElement latitudeElement = (XmlElement)element.GetElementsByTagName(
+              "latitude")[0];
+            XmlElement longElement = (XmlElement)element.GetElementsByTagName(
+              "longitude")[0];
+           
+            if (longElement == null)
+                throw new Exception("Longitude not found");
+            geoposicion = latitudeElement.InnerText;
+            geoposicion += "," + longElement.InnerText;
+            
+
+            
+        }
+        return geoposicion;
+    }
 
     protected void LoginToFacebookClicked(object sender, ImageClickEventArgs e)
     {
