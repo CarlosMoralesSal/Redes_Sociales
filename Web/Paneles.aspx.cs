@@ -62,7 +62,7 @@ public partial class Paneles : System.Web.UI.Page
     private void GetUserInfoGoogle()
     {
         String url = Request.Url.Query;
-        System.Net.IPAddress address;
+        
 
         String strIp;
 
@@ -76,8 +76,6 @@ public partial class Paneles : System.Web.UI.Page
             String mail=String.Empty;
             String name=String.Empty;
             Controlador.Registro registro = new Controlador.Registro();
-
-            //string url2 = string.Format("https://accounts.google.com/o/oauth2/token?code={0}&client_id={1}&client_secret={2}&redirect_uri={3}&grant_type=authorization_code",code,_client_id,_client_secret,redirect_uri);
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create("https://accounts.google.com/o/oauth2/token");
             webRequest.Method = "POST";
@@ -122,7 +120,7 @@ public partial class Paneles : System.Web.UI.Page
                         {
                             mail = serStatus2.email;
                             name = serStatus2.name;
-                            //String geo = Request.Cookies["geoposicion"].Value;
+                            
                             String geoposicion = "";
                             strIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
                             if (strIp == null)
@@ -130,36 +128,7 @@ public partial class Paneles : System.Web.UI.Page
                                 strIp = Request.ServerVariables["REMOTE_ADDR"];
                             }
 
-
-                            if (System.Net.IPAddress.TryParse(strIp, out address))
-                            {
-                                byte[] addrBytes = address.GetAddressBytes();
-
-                                if (System.BitConverter.IsLittleEndian)
-                                {
-                                    System.Collections.Generic.List<byte> byteList = new System.Collections.Generic.List<byte>(addrBytes);
-                                    byteList.Reverse();
-                                    addrBytes = byteList.ToArray();
-                                }
-
-                                if (addrBytes.Length > 8)
-                                {
-                                    //IPv6
-                                    ipnum = System.BitConverter.ToUInt64(addrBytes, 8);
-                                    ipnum <<= 64;
-                                    ipnum += System.BitConverter.ToUInt64(addrBytes, 0);
-                                }
-                                else
-                                {
-                                    //IPv4
-                                    ipnum = System.BitConverter.ToUInt32(addrBytes, 0);
-                                }
-                            }
-                            //DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
-                            //foreach (DataRow dRow in dtLocalizacion.Rows)
-                            //{
-                            //    geoposicion = dRow["longitude"].ToString() + "," + dRow["latitude"].ToString();
-                            //}
+                                                                              
                             String usrIP = Request.UserHostAddress;
 
 
@@ -171,14 +140,10 @@ public partial class Paneles : System.Web.UI.Page
 
                             Int64 idPersona=registro.Insertar(name, mail,geoposicion);
                             posOculto.Value = idPersona.ToString();
-                            HttpCookie cookie = new HttpCookie("persona");
-                            cookie.Value = idPersona.ToString();
-                            DateTime dtNow = DateTime.Now;
-                            TimeSpan tsMinutes = new TimeSpan(0, 0, 2, 0);
+                            
 
                             entrar.Visible = false;
-                            cookie.Expires = dtNow + tsMinutes;
-                            Response.Cookies.Add(cookie);
+                           
 
                         }
                     }
@@ -206,7 +171,7 @@ public partial class Paneles : System.Web.UI.Page
         String mail = String.Empty;
         String name = String.Empty;
         String user_location = String.Empty;
-        System.Net.IPAddress address;
+        
         String geoposicion = "";
         
         String strIp;
@@ -242,24 +207,7 @@ public partial class Paneles : System.Web.UI.Page
 
             String apiUrl = "http://api.ipinfodb.com/v3/ip-city/?key=04e88385a9c161c8c3dbfbe8ae5ac070873e6e0a1a27014dd4aabfcfc1655aa4&ip=212.128.152.144&format=xml";
 
-            //Uri dir = new Uri(apiUrl);
-
-            //// Create the web request 
-            //HttpWebRequest req = WebRequest.Create(dir) as HttpWebRequest;
-
-            //// Set type to POST 
-            //request.Method = "GET";
-            //request.ContentType = "text/xml";
-
-            //using (HttpWebResponse response = req.GetResponse() as HttpWebResponse)
-            //{
-            //    // Get the response stream 
-            //    StreamReader reader = new StreamReader(response.GetResponseStream());
-
-            //    // Console application output 
-            //    String strOutputXml = reader.ReadToEnd();
-            //}
-
+            
             // Send the request and get back an XML response.
             XmlDocument respon = GetXmlResponse(apiUrl);
             // Display each entity's info.
@@ -273,55 +221,20 @@ public partial class Paneles : System.Web.UI.Page
                 strIp = Request.ServerVariables["REMOTE_ADDR"];
             }
            
-
-            if (System.Net.IPAddress.TryParse(strIp, out address))
-            {
-                byte[] addrBytes = address.GetAddressBytes();
-
-                if (System.BitConverter.IsLittleEndian)
-                {
-                    System.Collections.Generic.List<byte> byteList = new System.Collections.Generic.List<byte>(addrBytes);
-                    byteList.Reverse();
-                    addrBytes = byteList.ToArray();
-                }
-
-                if (addrBytes.Length > 8)
-                {
-                    //IPv6
-                    ipnum = System.BitConverter.ToUInt64(addrBytes, 8);
-                    ipnum <<= 64;
-                    ipnum += System.BitConverter.ToUInt64(addrBytes, 0);
-                }
-                else
-                {
-                    //IPv4
-                    ipnum = System.BitConverter.ToUInt32(addrBytes, 0);
-                }
-            }
+                       
             var client = new FacebookClient(access_token);
             dynamic result = client.Get("/me");
             mail = Convert.ToString(result.email);
             name = Convert.ToString(result.name);
             user_location = Convert.ToString(result.user_location);
-           
-            //DataTable dtLocalizacion = registro.SeleccionarLoc(ipnum.ToString("G"));
-            //foreach (DataRow dRow in dtLocalizacion.Rows)
-            //{
-            //    geoposicion = dRow["longitude"].ToString() +","+dRow["latitude"].ToString();
-            //}
+                       
 
             Int64 idPersona=registro.Insertar(name,mail,geoposicion);
             
-            
-            //posOculto.Value = idPersona.ToString();
-            //HttpCookie cookie = new HttpCookie("persona");
-            //cookie.Value = idPersona.ToString();
-            //DateTime dtNow = DateTime.Now;
-            //TimeSpan tsMinutes = new TimeSpan(0,0,2,0);
+                      
             
             entrar.Visible = false;
-            //cookie.Expires = dtNow + tsMinutes;
-            //Response.Cookies.Add(cookie);
+            
             salir.Visible = true;
             Session.Remove("Facebook");
            
