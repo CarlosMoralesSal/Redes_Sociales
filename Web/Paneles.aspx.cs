@@ -26,7 +26,7 @@ public partial class Paneles : System.Web.UI.Page
     String scope = "email";
     String _client_id = "68518039682-tgtsdd01imreud0sasat0471faajh0ih.apps.googleusercontent.com";
     String _client_secret = "CWAuxjwp7CyxMYMuU4O7J3iU";
-    System.Numerics.BigInteger ipnum;
+    
     
 
     protected void Page_Load(object sender, EventArgs e)
@@ -275,7 +275,7 @@ public partial class Paneles : System.Web.UI.Page
               "longitude")[0];
            
             if (longElement == null)
-                throw new Exception("Longitude not found");
+                throw new Exception("Longitud no encontrada");
             geoposicion = latitudeElement.InnerText;
             geoposicion += "," + longElement.InnerText;
             

@@ -179,7 +179,9 @@
             // user is now logged out
 
         });
-        window.location.href = "http://www.w3schools.com";
+        //window.location.href = "http://www.w3schools.com";
+        document.getElementById("entrar").style.display = 'block';
+        document.getElementById("salir").style.display = 'none';
 
     }
 </script>
@@ -205,38 +207,7 @@
     <link rel="Stylesheet" href="Style/social-buttons-3.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <%--<script type="text/javascript">
-        function loadJsonData(valor) {
-           // alert('En loadJson');
-            //alert('PosOculto tiene:');
-            //alert('Aquí: '+valor);
-            var postdata = JSON.stringify(
-                {
-                    "Posicion": valor//,
-                    //"Desde":document.getElementById("posOculto").value
-                });
-            //alert('Posdata tiene:'+postdata);
-            try {
-                $.ajax({
-                    type: "POST",
-                    url: "GeoLoc.ashx",
-                    cache: false,
-                    data: postdata,
-                    dataType: "json",
-                    success: getSuccess,
-                    error: getFail
-                });
-            } catch (e) {
-                alert(e);
-            }
-            function getSuccess(data, textStatus, jqXHR) {
-                alert(data.Response);
-            };
-            function getFail(jqXHR, textStatus, errorThrown) {
-                alert(jqXHR.status);
-            };
-        };
-    </script>--%>
+   
 </head>
 <body>
 
