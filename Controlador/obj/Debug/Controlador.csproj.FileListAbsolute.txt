@@ -1,0 +1,6 @@
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\bin\Debug\Controlador.dll.config
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\bin\Debug\Controlador.dll
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\bin\Debug\Controlador.pdb
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\obj\Debug\Controlador.csprojResolveAssemblyReference.cache
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\obj\Debug\Controlador.dll
+C:\Users\Usuario\Desktop\RedesSociales\Controlador\obj\Debug\Controlador.pdb
